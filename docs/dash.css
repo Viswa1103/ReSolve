@@ -221,6 +221,11 @@ main h1 {
     gap: 10px;
 }
 
+.review-text-first a{
+    text-decoration: none;
+    color: #E9E9F2;
+}
+
 .review-text-first span:first-child {
     font-size: 20px;
     color: #EEA63C;

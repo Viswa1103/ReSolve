@@ -513,7 +513,7 @@ function renderReviewQueue() {
             <div class="review-text">
             <div class="review-text-first">
             <span>#${problem.problemNum}</span>
-            <span><b>${problem.problemName}</b></span>
+            <span><b><a href="${problem.problemUrl}" target="blank">${problem.problemName}</a></b></span>
             <span>${problem.pattern}</span>
             </div>
             <p>Last Seen ${problem.review.lastReviewedDate || problem.solvedDate} | reviewed ${problem.review.history.length}x</p>
