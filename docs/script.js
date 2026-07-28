@@ -503,7 +503,9 @@ function renderReviewQueue() {
             return problem.review.nextReviewDate <= getTodayDate()
         })
 
-        console.log(reviewProblems)
+        // console.log(reviewProblems)
+
+        reviewList.innerHTML=""
 
 
 
