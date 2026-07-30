@@ -28,13 +28,13 @@ let menuBtn = document.querySelector(".menu-btn")
 let closebtn = document.querySelector(".close-btn")
 let sidebar = document.querySelector(".sidebar")
 
-if(menuBtn){
-    menuBtn.addEventListener("click" , function(){
+if (menuBtn) {
+    menuBtn.addEventListener("click", function () {
         console.log("clicked")
         sidebar.classList.add("show")
     })
 
-    closebtn.addEventListener("click" ,function(){
+    closebtn.addEventListener("click", function () {
         sidebar.classList.remove("show")
 
     })
@@ -505,7 +505,7 @@ function renderReviewQueue() {
 
         // console.log(reviewProblems)
 
-        reviewList.innerHTML=""
+        reviewList.innerHTML = ""
 
 
 
@@ -554,6 +554,8 @@ function addReviewButtonListner() {
             let result = this.dataset.result
 
             updateReview(id, result)
+            renderDatesDashboard()
+            renderStreak()
         })
     }
 }
