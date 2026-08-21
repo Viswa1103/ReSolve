@@ -236,6 +236,8 @@ if (addProblemBtn) {
 
     addProblemBtn.addEventListener("click", function (e) {
 
+        e.preventDefault()
+
 
         let problemNum = Number(document.getElementById("leetcode-number").value)
         let problemName = document.getElementById("problem-name").value
@@ -263,6 +265,14 @@ if (addProblemBtn) {
 
 
         saveData()
+
+        renderProblems(problems)
+        renderReviewQueue()
+        renderDatesDashboard()
+        renderStreak()
+        renderPatternStats()
+        renderDifficultyStats()
+        showView("problems")
 
     })
 
@@ -414,15 +424,19 @@ let editProblemFormSubmitBtn = document.getElementById("edit-problem-form-submit
 
 if (editProblemFormSubmitBtn) {
 
-    editProblemFormCancelBtn.addEventListener("click", function () {
+    editProblemFormCancelBtn.addEventListener("click", function (e) {
+
+        e.preventDefault()
         header.classList.remove("blur")
         mainContent.classList.remove("blur")
         editModalContent.classList.add("hidden")
         editedId = null
+        showView("problems")
 
     })
 
-    editProblemFormSubmitBtn.addEventListener("click", function () {
+    editProblemFormSubmitBtn.addEventListener("click", function (e) {
+        e.preventDefault()
         let editLeetcodeNum = Number(document.getElementById("edit-leetcode-number").value)
         let editLeetcodeName = document.getElementById("edit-problem-name").value
         let editProblemPattern = document.getElementById("edit-problem-pattern").value
@@ -442,10 +456,14 @@ if (editProblemFormSubmitBtn) {
         problem.problemInsight = document.getElementById("edit-problem-insight").value
         problem.difficulty = editedDifficulty
 
+        header.classList.remove("blur")
+        mainContent.classList.remove("blur")
+        editModalContent.classList.add("hidden")
+
         editedId = null
 
         saveData()
-        renderProblems()
+        renderProblems(problems)
     })
 
 }
@@ -521,7 +539,7 @@ if (search) {
 
 
 // --------------------------------------------------DashBoard Review Queue -------------------------------------------------------
-problems[0].review.nextReviewDate = "2026-07-01";
+// problems[0].review.nextReviewDate = "2026-07-01";
 // problems[0].review.stage = 0;
 // problems[0].review.history = [];
 saveData()
