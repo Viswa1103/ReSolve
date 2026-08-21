@@ -28,17 +28,53 @@ let menuBtn = document.querySelector(".menu-btn")
 let closebtn = document.querySelector(".close-btn")
 let sidebar = document.querySelector(".sidebar")
 
-if (menuBtn) {
-    menuBtn.addEventListener("click", function () {
+if(menuBtn){
+    menuBtn.addEventListener("click" , function(){
         console.log("clicked")
         sidebar.classList.add("show")
     })
 
-    closebtn.addEventListener("click", function () {
+    closebtn.addEventListener("click" ,function(){
         sidebar.classList.remove("show")
 
     })
 }
+// -------------------------Displaying section and active nav link ----------------------------
+
+let navItems = document.querySelectorAll(".nav-items")
+
+for(let item of navItems){
+    item.addEventListener("click", function(){
+        showView(this.dataset.view);
+    })
+
+}
+
+function showView(viewName){
+
+    let sections = document.querySelectorAll(".view")
+    for(let section of sections){
+        if(section.dataset.view === viewName){
+            section.classList.add("active")
+        }
+        else{
+            section.classList.remove("active")
+        }
+    }
+
+    for(item of navItems){
+        if(item.dataset.view === viewName){
+            item.classList.add("active")
+        }
+        else{
+            item.classList.remove("active")
+        }
+    }
+
+}
+
+
+
 
 
 // -------------------------Problem Count in DashBoard ----------------------------
@@ -485,14 +521,14 @@ if (search) {
 
 
 // --------------------------------------------------DashBoard Review Queue -------------------------------------------------------
-// problems[0].review.nextReviewDate = "2026-07-01";
+problems[0].review.nextReviewDate = "2026-07-01";
 // problems[0].review.stage = 0;
 // problems[0].review.history = [];
 saveData()
 function renderReviewQueue() {
 
     let reviewList = document.querySelector(".review-list")
-    console.log(reviewList)
+    // console.log(reviewList)
     let reviewCount = document.getElementById("review-count")
 
 
@@ -505,7 +541,7 @@ function renderReviewQueue() {
 
         // console.log(reviewProblems)
 
-        reviewList.innerHTML = ""
+        reviewList.innerHTML=""
 
 
 
