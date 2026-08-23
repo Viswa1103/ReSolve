@@ -4,37 +4,296 @@
 // let problemUrl = document.getElementById("problem-url")
 // let problemInsight = document.getElementById("problem-insight")
 
+let API_URL = "http://localhost:8000/api/problems"
+
+// fetchProblemsFromServer()
+// createProblemOnServer()
 let problems = []
-loadData()
+let userName = ""
 let currentDate = new Date();
 let deletedId = null
 let editedId = null
-// ------------------------------ Local Storage Function ----------------------------------------
+const AUTH_TOKEN_KEY = "resolve_token"
+
+// ------------------------------ Application Startup ----------------------------------------
+
+if(getToken()){
+    showApp()
+    startUp()
+}
+else{
+    showAuthScreen()
+}
+
+// ------------------------------ Token Function ----------------------------------------
+
+
+
+function getToken(){
+    return localStorage.getItem(AUTH_TOKEN_KEY)
+}
+
+function setToken(token){
+    localStorage.setItem(AUTH_TOKEN_KEY , token)
+}
+
+function clearToken(){
+    localStorage.removeItem(AUTH_TOKEN_KEY)
+}
+
+// ------------------------------ Application StartUp Function ----------------------------------------
+
+async function startUp() {
+    await loadData()
+
+
+    renderProblems(problems)
+
+    renderReviewQueue()
+    renderDatesDashboard()
+    // console.log(problems)
+    renderStreak()
+    renderPatternStats()
+    renderDifficultyStats()
+
+
+}
+
+function showApp(){
+    document.getElementById("auth-screen").style.display= "none"
+    document.getElementById("app-header").style.display= ""
+    document.getElementById("app-main").style.display= ""
+
+}
+
+function showAuthScreen(){
+    document.getElementById("auth-screen").style.display= "flex"
+    document.getElementById("app-header").style.display= "none"
+    document.getElementById("app-main").style.display= "none"
+
+}
+
+document.getElementById("btn-login").addEventListener("click", async function (e) {
+    e.preventDefault()
+
+    const email = document.getElementById("auth-email").value
+    const password =document.getElementById("auth-password").value
+    const errorbox = document.getElementById("auth-error")
+    errorbox.textContent=""
+
+    try {
+        const data = await loginOnServer(email , password)
+        setToken(data.token)
+
+        document.getElementById("auth-email").value=""
+        document.getElementById("auth-password").value=""
+
+
+        showApp()
+        startUp()
+    } catch (err) {
+        console.log(err.message)
+        errorbox.textContent = err.message
+    }
+    
+})
+
+document.getElementById("btn-register").addEventListener("click", async function (e) {
+    e.preventDefault()
+
+
+    const registerName = document.getElementById("register-name").value
+    // console.log(registerName)
+    const email = document.getElementById("register-email").value
+    console.log(document.getElementById("register-email"))
+    // console.log(email)
+    const password =document.getElementById("register-password").value
+    const errorbox = document.getElementById("auth-error")
+    errorbox.textContent=""
+
+    try {
+        await regiserOnServer(email ,password , registerName);
+        const data = await loginOnServer(email , password)
+        setToken(data.token)
+        document.getElementById("register-email").value=""
+        document.getElementById("register-password").value=""
+        document.getElementById("register-name").value=""
+        showApp()
+        startUp()
+    } catch (err) {
+        errorbox.textContent = err.message
+    }
+    
+})
+
+// ------------------------------ Auth Screen Switch Code ----------------------------------------
+
+let loginTab = document.getElementById("tab-login")
+let registerTab = document.getElementById("tab-register")
+
+let loginPanel = document.getElementById("auth-login")
+let registerPanel = document.getElementById("auth-register")
+
+let loginHint =document.querySelector("#auth-login .auth-hint a")
+let registerHint =document.querySelector("#auth-register .auth-hint a")
+
+function showLogin(){
+    loginTab.classList.add("tab-on")
+    registerTab.classList.remove("tab-on")
+
+    loginPanel.classList.add("panel-on")
+    registerPanel.classList.remove("panel-on")
+}
+
+function showRegister(){
+    loginTab.classList.remove("tab-on")
+    registerTab.classList.add("tab-on")
+
+    loginPanel.classList.remove("panel-on")
+    registerPanel.classList.add("panel-on")
+
+}
+
+loginTab.addEventListener("click" , showLogin)
+registerTab.addEventListener("click" , showRegister)
+
+loginHint.addEventListener("click" , function(e){
+    e.preventDefault()
+    showRegister()
+})
+
+registerHint.addEventListener("click" , function(e){
+    e.preventDefault()
+    showLogin()
+})
+
+// ------------------------------ Logout Functionality ----------------------------------------
+
+document.getElementById("logout-btn").addEventListener("click", function(){
+    clearToken()
+    showAuthScreen()
+})
+
+document.getElementById("mobile-logout-btn").addEventListener("click", function(){
+    clearToken()
+    showAuthScreen()
+})
+
+// ------------------------------ API Calls from Frontend to Backend ----------------------------------------
+
+
+async function fetchProblemsFromServer() {
+    const response = await fetch(API_URL , {
+        headers: { 
+            "Authorization":"Bearer " + getToken()
+         }
+    })
+    const data = await response.json()
+
+    return data
+}
+
+async function createProblemOnServer(problem) {
+    const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json" ,
+            "Authorization":"Bearer " + getToken()
+
+        },
+        body: JSON.stringify(problem)
+    })
+    const data = await response.json()
+    return data
+}
+
+async function deleteProblemFromServer(id){
+    await fetch(API_URL +"/"+ id , {
+        method:"DELETE",
+        headers: { 
+            "Authorization":"Bearer " + getToken()
+         }        
+    })
+}
+
+async function updateProblemFromServer(id ,problem) {
+    console.log(id)
+    const response = await fetch(API_URL+"/"+id, {
+        method: "PUT",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization":"Bearer " + getToken()
+         },
+        body: JSON.stringify(problem)
+    })
+    const data = await response.json()
+    return data
+        
+}
+
+async function regiserOnServer(email,password,registerName) {
+
+    const response = await fetch("http://localhost:8000/api/register" , {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({email : email , password : password , name:registerName})
+    })
+
+    const data = await response.json()
+    if(!response.ok){
+        console.log(data.Error)
+        throw new Error(data.Error)
+    }
+    return data
+    
+}
+
+async function loginOnServer(email ,password) {
+    const response = await fetch("http://localhost:8000/api/login" , {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({email : email , password : password})
+    })
+
+    const data = await response.json()
+    if(!response.ok){
+        console.log(data.Error)
+        throw new Error(data.Error)
+    }
+    return data    
+}
+
+// console.log(problems)
+
+// ------------------------------ Loading Data from the Server ----------------------------------------
 
 function saveData() {
     localStorage.setItem("problems", JSON.stringify(problems))
 }
 
-function loadData() {
-    let savedProblem = localStorage.getItem("problems")
-    if (savedProblem != null) {
-        problems = JSON.parse(savedProblem)
-    }
+async function loadData() {
+    const data = await fetchProblemsFromServer();
+    userName = data.userName
+    let userNameElement = document.getElementById("user-name")
+    userNameElement.textContent=`Welcome ${userName}`
+    problems = data.problems
+
 }
 
+// ------------------------------ Responsive NavBar function ----------------------------------------
 
 
 let menuBtn = document.querySelector(".menu-btn")
 let closebtn = document.querySelector(".close-btn")
 let sidebar = document.querySelector(".sidebar")
 
-if(menuBtn){
-    menuBtn.addEventListener("click" , function(){
+if (menuBtn) {
+    menuBtn.addEventListener("click", function () {
         console.log("clicked")
         sidebar.classList.add("show")
     })
 
-    closebtn.addEventListener("click" ,function(){
+    closebtn.addEventListener("click", function () {
         sidebar.classList.remove("show")
 
     })
@@ -43,30 +302,30 @@ if(menuBtn){
 
 let navItems = document.querySelectorAll(".nav-items")
 
-for(let item of navItems){
-    item.addEventListener("click", function(){
+for (let item of navItems) {
+    item.addEventListener("click", function () {
         showView(this.dataset.view);
     })
 
 }
 
-function showView(viewName){
+function showView(viewName) {
 
     let sections = document.querySelectorAll(".view")
-    for(let section of sections){
-        if(section.dataset.view === viewName){
+    for (let section of sections) {
+        if (section.dataset.view === viewName) {
             section.classList.add("active")
         }
-        else{
+        else {
             section.classList.remove("active")
         }
     }
 
-    for(item of navItems){
-        if(item.dataset.view === viewName){
+    for (item of navItems) {
+        if (item.dataset.view === viewName) {
             item.classList.add("active")
         }
-        else{
+        else {
             item.classList.remove("active")
         }
     }
@@ -107,6 +366,8 @@ function renderDatesDashboard() {
         let loggedCount = document.getElementById("loggedCount")
         loggedCount.textContent = problemLoggedToday() + problemReviewedToday()
     }
+
+    
 
 }
 
@@ -234,7 +495,7 @@ let addProblemBtn = document.getElementById("form-submit")
 if (addProblemBtn) {
 
 
-    addProblemBtn.addEventListener("click", function (e) {
+    addProblemBtn.addEventListener("click", async function (e) {
 
         e.preventDefault()
 
@@ -245,8 +506,7 @@ if (addProblemBtn) {
         let problemUrl = document.getElementById("problem-url").value || `https://leetcode.com/problems/${problemName.toLowerCase().replaceAll(" ", "-")}/description/`
         let problemInsight = document.getElementById("problem-insight").value
 
-        problems.push({
-            id: problems.length + 1,
+        let newProblem = {
             problemNum: problemNum,
             problemName: problemName,
             pattern: pattern,
@@ -261,10 +521,11 @@ if (addProblemBtn) {
                 lastReviewedDate: null,
                 history: []
             }
-        })
+        }
 
+        let savedProblem = await createProblemOnServer(newProblem);
 
-        saveData()
+        problems.push(savedProblem)
 
         renderProblems(problems)
         renderReviewQueue()
@@ -405,16 +666,22 @@ if (editproblemEasyBtn) {
         editedDifficulty = "Easy"
         clearDifficulty()
         editproblemEasyBtn.classList.add("dif-btn-on")
+        editproblemHardBtn.classList.remove("dif-btn-on")
+        editproblemMediumBtn.classList.remove("dif-btn-on")
     })
     editproblemMediumBtn.addEventListener("click", function () {
         editedDifficulty = "Medium"
         clearDifficulty()
         editproblemMediumBtn.classList.add("dif-btn-on")
+        editproblemHardBtn.classList.remove("dif-btn-on")
+        editproblemEasyBtn.classList.remove("dif-btn-on")
     })
     editproblemHardBtn.addEventListener("click", function () {
         editedDifficulty = "Hard"
         clearDifficulty()
         editproblemHardBtn.classList.add("dif-btn-on")
+        editproblemEasyBtn.classList.remove("dif-btn-on")
+        editproblemMediumBtn.classList.remove("dif-btn-on")
     })
 }
 
@@ -435,12 +702,12 @@ if (editProblemFormSubmitBtn) {
 
     })
 
-    editProblemFormSubmitBtn.addEventListener("click", function (e) {
+    editProblemFormSubmitBtn.addEventListener("click",async function (e) {
         e.preventDefault()
-        let editLeetcodeNum = Number(document.getElementById("edit-leetcode-number").value)
-        let editLeetcodeName = document.getElementById("edit-problem-name").value
-        let editProblemPattern = document.getElementById("edit-problem-pattern").value
-        let editProblemInsight = document.getElementById("edit-problem-insight").value
+        // let editLeetcodeNum = Number(document.getElementById("edit-leetcode-number").value)
+        // let editLeetcodeName = document.getElementById("edit-problem-name").value
+        // let editProblemPattern = document.getElementById("edit-problem-pattern").value
+        // let editProblemInsight = document.getElementById("edit-problem-insight").value
 
         let problem = problems.find(function (problem) {
             return problem.id === editedId
@@ -455,6 +722,8 @@ if (editProblemFormSubmitBtn) {
         problem.pattern = document.getElementById("edit-problem-pattern").value
         problem.problemInsight = document.getElementById("edit-problem-insight").value
         problem.difficulty = editedDifficulty
+
+        await updateProblemFromServer(problem.id ,problem)
 
         header.classList.remove("blur")
         mainContent.classList.remove("blur")
@@ -476,7 +745,9 @@ let cancelBtn = document.getElementById("cancel-btn")
 let confirmBtn = document.getElementById("confirm-btn")
 
 if (confirmBtn) {
-    confirmBtn.addEventListener("click", function () {
+    confirmBtn.addEventListener("click", async function () {
+
+        await deleteProblemFromServer(deletedId)
         let index = problems.findIndex(function (problem) {
             return problem.id === deletedId
         })
@@ -487,7 +758,6 @@ if (confirmBtn) {
         mainContent.classList.remove("blur")
         modalContent.classList.add("hidden")
         deletedId = null
-        saveData()
         renderProblems(problems)
     })
 
@@ -502,7 +772,7 @@ if (confirmBtn) {
 }
 
 
-renderProblems(problems)
+
 
 // ---------------------------------------------------Search Option in the Problems Page ------------------------------------------
 
@@ -542,7 +812,7 @@ if (search) {
 // problems[0].review.nextReviewDate = "2026-07-01";
 // problems[0].review.stage = 0;
 // problems[0].review.history = [];
-saveData()
+
 function renderReviewQueue() {
 
     let reviewList = document.querySelector(".review-list")
@@ -559,7 +829,7 @@ function renderReviewQueue() {
 
         // console.log(reviewProblems)
 
-        reviewList.innerHTML=""
+        reviewList.innerHTML = ""
 
 
 
@@ -730,10 +1000,4 @@ function renderDifficultyStats() {
 
 // -------------------------------------------------------------------------------------------------------
 
-renderReviewQueue()
-renderDatesDashboard()
-// console.log(problems)
-renderStreak()
-renderPatternStats()
-renderDifficultyStats()
 
