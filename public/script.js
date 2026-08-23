@@ -51,7 +51,6 @@ async function startUp() {
 
     renderReviewQueue()
     renderDatesDashboard()
-    // console.log(problems)
     renderStreak()
     renderPatternStats()
     renderDifficultyStats()
@@ -92,7 +91,7 @@ document.getElementById("btn-login").addEventListener("click", async function (e
         showApp()
         startUp()
     } catch (err) {
-        console.log(err.message)
+        
         errorbox.textContent = err.message
     }
     
@@ -103,10 +102,10 @@ document.getElementById("btn-register").addEventListener("click", async function
 
 
     const registerName = document.getElementById("register-name").value
-    // console.log(registerName)
+    
     const email = document.getElementById("register-email").value
-    console.log(document.getElementById("register-email"))
-    // console.log(email)
+    
+
     const password =document.getElementById("register-password").value
     const errorbox = document.getElementById("auth-error")
     errorbox.textContent=""
@@ -217,7 +216,7 @@ async function deleteProblemFromServer(id){
 }
 
 async function updateProblemFromServer(id ,problem) {
-    console.log(id)
+    
     const response = await fetch(API_URL+"/"+id, {
         method: "PUT",
         headers: { 
@@ -241,7 +240,7 @@ async function regiserOnServer(email,password,registerName) {
 
     const data = await response.json()
     if(!response.ok){
-        console.log(data.Error)
+    
         throw new Error(data.Error)
     }
     return data
@@ -257,13 +256,12 @@ async function loginOnServer(email ,password) {
 
     const data = await response.json()
     if(!response.ok){
-        console.log(data.Error)
+    
         throw new Error(data.Error)
     }
     return data    
 }
 
-// console.log(problems)
 
 // ------------------------------ Loading Data from the Server ----------------------------------------
 
@@ -289,7 +287,6 @@ let sidebar = document.querySelector(".sidebar")
 
 if (menuBtn) {
     menuBtn.addEventListener("click", function () {
-        console.log("clicked")
         sidebar.classList.add("show")
     })
 
@@ -354,7 +351,6 @@ function problemReviewedToday() {
     }).length
 }
 
-// console.log(problemReviewedToday())
 
 function renderDatesDashboard() {
     let probelmCount = document.getElementById("problem-count");
@@ -397,7 +393,7 @@ function renderStreak() {
             break;
         }
     }
-    // console.log(streak)
+
 
     let headerStreak = document.getElementById("header-streak")
     headerStreak.textContent = `🔥 ${streak} Days Streak`
@@ -576,14 +572,14 @@ function renderProblems(problemList) {
     }
 
     let deleteBtns = document.querySelectorAll(".delete-btn")
-    // console.log(deleteBtns)
+
 
     if (deleteBtns) {
 
         for (let btn of deleteBtns) {
             btn.addEventListener("click", function () {
 
-                // console.log("clicked")
+
                 let id = Number(this.dataset.id)
 
                 deletedId = id
@@ -596,14 +592,13 @@ function renderProblems(problemList) {
     }
 
     let editBtns = document.querySelectorAll(".edit-btn")
-    // console.log(editBtns)
+
 
     if (editBtns) {
 
         for (let btn of editBtns) {
             btn.addEventListener("click", function () {
 
-                // console.log("clicked")
                 let id = Number(this.dataset.id)
 
                 editedId = id
@@ -816,7 +811,7 @@ if (search) {
 function renderReviewQueue() {
 
     let reviewList = document.querySelector(".review-list")
-    // console.log(reviewList)
+    
     let reviewCount = document.getElementById("review-count")
 
 
@@ -827,14 +822,14 @@ function renderReviewQueue() {
             return problem.review.nextReviewDate <= getTodayDate()
         })
 
-        // console.log(reviewProblems)
+        
 
         reviewList.innerHTML = ""
 
 
 
         for (let problem of reviewProblems) {
-            // console.log(problem)
+            
             reviewList.innerHTML += `<div class="review-item">
             <div class="review-text">
             <div class="review-text-first">
@@ -889,7 +884,7 @@ function updateReview(id, result) {
         return problem.id === id
     })
 
-    // console.log(problem.review.stage)
+    
 
     if (!problem) {
         return
@@ -915,24 +910,21 @@ function updateReview(id, result) {
         problem.review.stage = 0
     }
 
-    // console.log(problem.review.stage)
+   
 
     problem.review.nextReviewDate = nextReviewDate(problem.review.stage, problem.review.nextReviewDate)
     problem.review.lastReviewedDate = getTodayDate()
-    // console.log(problem.review.lastReviewedDate)
-    // console.log(problem.review.nextReviewDate)
-    // console.log(problem.review.history)
+    
     problem.review.history.push({
         date: getTodayDate(),
         result: result
     })
-    // console.log(problem)
+   
     saveData()
     renderReviewQueue()
 
 }
 
-// console.log(problems)
 
 // ----------------------------------------------Insights for the Patterns ---------------------------
 

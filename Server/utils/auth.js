@@ -14,7 +14,6 @@ async function login(req,res) {
         
 
         if(result.rows.length ===0){
-            console.log("Invalid Email Id")
            return res.status(401).json({Error :"Invalid Email Id"})
         }
 
@@ -23,7 +22,6 @@ async function login(req,res) {
         const passwordMatches = await bcrypt.compare(password , user.password_hash)
 
         if(!passwordMatches){
-            console.log("Invalid Password")
             return res.status(401).json({Error : "Invalid Password"})
         }
 
@@ -39,7 +37,6 @@ async function login(req,res) {
 
 
     } catch (err) {
-        console.log(err)
         res.status(500).json({Error : "Could not login"})
     }
     
@@ -70,7 +67,7 @@ async function register(req,res) {
         if(err.code ==='23505'){
             return res.status(409).json({Error :"User already Exist"})
         }
-        console.log(err)
+       
 
         res.status(500).json({Error : "Could not create a account at this moment"})
         

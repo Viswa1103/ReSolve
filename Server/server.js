@@ -15,7 +15,7 @@ app.use(express.json())
 
 app.use(express.static(path.join(__dirname,"..","public")))
 
-console.log(__dirname)
+
 
 app.post("/api/register" , auth.register)
 
@@ -39,7 +39,6 @@ app.get("/api/problems",requireAuth , async (req, res) => {
 
     } catch (error) {
 
-        console.log("Error message :", error.message);
         res.status(500).json({ Error: " Could not connect to the endpoint" })
 
     }
@@ -72,11 +71,9 @@ app.post("/api/problems",requireAuth , async (req, res) => {
                 `, [req.userId,p.problemNum, p.problemName, p.pattern, p.difficulty, p.status, p.problemUrl, p.problemInsight, p.solvedDate, p.review.stage,
         p.review.nextReviewDate, p.review.lastReviewedDate, JSON.stringify(p.review.history)]
         )
-        console.log(results.rows[0])
         res.status(201).json(rowToProblem(results.rows[0]))
 
     } catch (error) {
-        console.log("Error Message: ", error.message)
         res.status(500).json({ Error: "Could not create a problem" })
 
     }
@@ -128,7 +125,6 @@ app.put("/api/problems/:id",requireAuth , async (req, res) => {
 
         res.json(rowToProblem(results.rows[0]))
     } catch (error) {
-        console.log("Error :" ,error.message)
         res.status(500).json({Error : "Could not update problem"})
     }
 })
@@ -143,7 +139,6 @@ app.delete("/api/problems/:id" ,requireAuth , async (req,res) =>{
         res.json({ok :true})
     } catch (error) {
 
-        console.log("error : " ,error.message)
         res.status(500).json({Error : "Cannot delete the problem"})        
     }
 })
