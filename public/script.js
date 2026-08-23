@@ -4,7 +4,7 @@
 // let problemUrl = document.getElementById("problem-url")
 // let problemInsight = document.getElementById("problem-insight")
 
-let API_URL = "http://localhost:8000/api/problems"
+let API_URL = "/api/problems"
 
 // fetchProblemsFromServer()
 // createProblemOnServer()
