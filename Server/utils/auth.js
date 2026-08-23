@@ -50,6 +50,7 @@ async function register(req,res) {
         const userName = req.body.name
 
         if(!email || !password ){
+            
             return res.status(400).json({Error : "Email and password Required"})
         }
         if(password.length<6){
@@ -65,8 +66,11 @@ async function register(req,res) {
     } catch (err) {
 
         if(err.code ==='23505'){
+            console.log(err)
             return res.status(409).json({Error :"User already Exist"})
         }
+
+        console.log(err)
        
 
         res.status(500).json({Error : "Could not create a account at this moment"})
